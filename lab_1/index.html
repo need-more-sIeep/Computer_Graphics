@@ -1,0 +1,103 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>lab_1</title>
+    </head>
+
+    <body>
+        <h1>lab_1 (управление с помощью w, a, s, d и пробел).</h1>
+        <canvas width='600' height='800' id="lab01" style="border:1px solid"></canvas>
+        <script>
+            var canvas = document.getElementById('lab01');
+            var ctx = canvas.getContext('2d');
+            var x = 1;
+            var y = 1;
+            var d_x = 2;
+            var d_y = 2;
+            var rect_x = 20;
+            var rect_y = 20;
+            
+            addEventListener("keydown", change_acceleration);
+            setInterval(animation, 50);
+            
+            function change_acceleration(code) {
+                switch (code.keyCode) {
+                    // Space = stop.
+                    case 32:
+                    if(d_x ==0 && d_y==0){
+                        d_x=2;
+                        d_y=2;
+                    }else{
+                        d_x = 0;
+                        d_y = 0;
+                    }
+                        break;
+
+                    // Left(a)
+                    case 65:
+                        if (d_x > 0) {
+                            d_x*=-1;
+                        }
+                        break;
+
+                    // Up (w)
+                    case 87:
+                        if (d_y > 0) {
+                            d_y*=-1
+                        }
+                        break;
+
+                    // right(d)
+                    case 68:
+                        if (d_x < 0) {
+                            d_x*=-1
+                        }
+                        break;
+
+                    // Down(s)
+                    case 83:
+                        if (d_y < 0) {
+                            d_y*=-1;
+                        }
+                        break;
+                }
+            }
+
+            function drawrect(x, y) {
+                ctx.beginPath();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(x,y,50,50);
+                
+
+                ctx.fillStyle = "rgb(255,165,0)";;
+                ctx.fill();
+
+            }
+            
+            function animation() {
+
+                drawrect(x, y)
+
+                if (x >= canvas.width - x) {
+                    d_x = -Math.abs(d_x);
+                }
+
+                if (x <= rect_x) {
+                    d_x = Math.abs(d_x);
+                }
+
+                if (y >= canvas.height - rect_y) {
+                    d_y = -Math.abs(d_y);
+                }
+
+                if (y <= rect_y) {
+                    d_y = Math.abs(d_y);
+                }
+
+                y = y + d_y;
+                x = x + d_x;
+
+            }
+        </script>
+    </body>
+</html>
