@@ -1,0 +1,42 @@
+<HTML>
+        <BODY>
+        <canvas id='lesson04' width='500' height='500'/>
+        <script>
+                
+                let canvas = document.getElementById('lesson04');
+                let ctx = canvas.getContext('2d');
+
+               
+                function dFs(x,y){
+                        return 4*y+6;
+                }
+                function dFd(x,y){
+                        return 4*x+4*y+10;
+                }
+                let R = 100;
+                let x = -R;
+                let y = 0;
+                let F = 1 - R*2;
+                while(y <= Math.abs(x)){
+                        ctx.fillRect(250+x,250+y,1,1);
+                        ctx.fillRect(250+y,250+x,1,1);
+                        ctx.fillRect(250-x,250+y,1,1);
+                        ctx.fillRect(250-y,250+x,1,1);
+                        ctx.fillRect(250+x,250-y,1,1);
+                        ctx.fillRect(250+y,250-x,1,1);
+                        ctx.fillRect(250-x,250-y,1,1);
+                        ctx.fillRect(250-y,250-x,1,1);
+                        if(F<0){
+                                F+=dFs(x,y);
+                                y++;
+                        }
+                        else{
+                                F+=dFd(x,y);
+                                x++;
+                                y++;
+                        }
+                }
+                        
+        </script>
+        </BODY>
+</HTML>
