@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>lab08</title>
+</head>
+<body>
+<canvas id="canvas" width="1000" height="1000"></canvas>
+<script>
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+
+    function draw_line(point0, point1) {
+        let x0 = point0.x;
+        let x1 = point1.x;
+        let y0 = point0.y;
+        let y1 = point1.y;
+
+        let dy = y1 - y0;
+        let dx = x1 - x0;
+
+        let sign_x = dx > 0 ? 1 : dx < 0 ? -1 : 0;
+        let sign_y = dy > 0 ? 1 : dy < 0 ? -1 : 0;
+
+
+        if (dx < 0) dx = -dx;
+        if (dy < 0) dy = -dy;
+
+        let pdx, pdy, es, el;
+        if (dx > dy) {
+            pdx = sign_x;
+            pdy = 0;
+            es = dy;
+            el = dx;
+        } else {
+            pdx = 0;
+            pdy = sign_y;
+            es = dx;
+            el = dy;
+        }
+
+        let e = el / 2;
+        let t = 0;
+        let x = x0;
+        let y = y0;
+
+        ctx.fillRect(x, y, 2, 2);
+        while (t < el) {
+            console.log(e)
+            e -= es;
+            if (e < 0) {
+                e += el;
+                x += sign_x;
+                y += sign_y;
+            } else {
+                x += pdx;
+                y += pdy;
+            }
+            t += 1;
+            ctx.fillRect(x, y, 1, 1);
+        }
+    }
+
+    function get_distance(point0, point1, point2) {
+        let N = Math.sqrt(Math.pow((point1.x - point2.x), 2) + Math.pow((point1.y - point2.y), 2))
+        let k = ((point0.x - point1.x) * (point0.y - point2.y) - (point0.y - point1.y) * (point0.x - point2.x)) / (Math.pow((point0.x - point2.x), 2) - Math.pow((point0.y - point2.y), 2))
+        return Math.abs(k * N)
+    }
+
+
+    function draw(point0, point1, point2) {
+        if (get_distance(point0, point1, point2) < 1) {
+            console.log(point0)
+            console.log(point1)
+            console.log(point2)
+            draw_line(point0, point2)
+            return
+        }
+        let point0_1 = {
+            x: 0,
+            y: 0
+        }
+
+        let point1_1 = {
+            x: 0,
+            y: 0
+        }
+
+        let point0_2 = {
+            x: 0,
+            y: 0
+        }
+
+        point0_1.x = (point0.x + point1.x) * 0.5
+        point0_1.y = (point0.y + point1.y) * 0.5
+        point1_1.x = (point2.x + point1.x) * 0.5
+        point1_1.y = (point2.y + point1.y) * 0.5
+        point0_2.x = (point0_1.x + point1_1.x) * 0.5
+        point0_2.y = (point0_1.y + point1_1.y) * 0.5
+
+        draw(point0, point0_1, point0_2)
+        draw(point0_2, point1_1, point2)
+    }
+
+    point0 = {
+        x: 200,
+        y: 200
+    }
+
+    point1 = {
+        x: 300,
+        y: 400
+    }
+
+    point2 = {
+        x: 400,
+        y: 200
+    }
+
+    draw(point0, point1, point2)
+</script>
+</body>
+</html>
