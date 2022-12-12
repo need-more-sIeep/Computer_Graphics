@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>HomeWork 5</title>
+
+</head>
+
+<body>
+<h1>Filters.</h1>
+<h3>Original.</h3>
+<canvas width="600" , height="600" , id="original"></canvas>
+
+<h3>Sobel filtered .</h3>
+<canvas width="600" , height="600" , id="sobel"></canvas>
+
+<h3>Average filtered .</h3>
+<canvas width="600" , height="600" , id="average"></canvas>
+
+<h3>Gauss filtered .</h3>
+<canvas width="600" , height="600" , id="gauss"></canvas>
+
+
+<script>
+    var canvas = document.getElementById("original");
+    var ctx = canvas.getContext("2d");
+
+    var canvas2 = document.getElementById("sobel");
+    var ctx2 = canvas2.getContext("2d");
+
+    var canvas3 = document.getElementById("average");
+    var ctx3 = canvas3.getContext("2d");
+
+    var canvas4 = document.getElementById("gauss");
+    var ctx4 = canvas4.getContext("2d");
+
+    var img = new Image();
+
+    img.crossOrigin = "anonymus";
+    img.src = "https://upload.wikimedia.org/wikipedia/commons/f/f4/Noise_salt_and_pepper.png";
+
+    // Интерфес для доступа к пикселям.
+    var img_data = new ImageData(1, 1);
+
+    img.onload = function () {
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        function averageFilter() {
+            img_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            let h = canvas3.height;
+            let w = canvas3.width;
+
+            let img3_data = ctx.createImageData(w, h);
+
+            let row_size = 1;
+            let col_size = 1;
+
+            for (let i = 0; i < h; i++) {
+                for (let j = 0; j < w; j++) {
+                    const R = [];
+                    const G = [];
+                    const B = [];
+                    const S = [];
+
+                    for (var k = -col_size; k <= col_size; k++) {
+                        for (var l = -row_size; l <= row_size; l++) {
+                            R.push(img_data.data[((i + l) * w + j + k) * 4]);
+                            G.push(img_data.data[((i + l) * w + j + k) * 4 + 1]);
+                            B.push(img_data.data[((i + l) * w + j + k) * 4 + 2]);
+                            S.push(img_data.data[((i + l) * w + j + k) * 4 + 3]);
+                        }
+                    }
+
+                    R.sort();
+                    G.sort();
+                    B.sort();
+                    S.sort();
+
+                    let summ_R = 0;
+                    let summ_G = 0;
+                    let summ_B = 0;
+                    let summ_S = 0;
+
+                    for (el = 0; el < R.length; el++) {
+                        summ_R += R[el];
+                        summ_G += G[el];
+                        summ_B += B[el];
+                        summ_S += S[el];
+                    }
+
+
+                    img3_data.data[((i + l) * w + j + k) * 4] = Math.round(summ_R / 9);
+                    img3_data.data[((i + l) * w + j + k) * 4 + 1] = Math.round(summ_G / 9);
+                    img3_data.data[((i + l) * w + j + k) * 4 + 2] = Math.round(summ_B / 9);
+                    img3_data.data[((i + l) * w + j + k) * 4 + 3] = Math.round(summ_S / 9);
+
+                }
+            }
+
+            ctx3.putImageData(img3_data, 0, 0, 0, 0, canvas3.width, canvas3.height);
+        }
+
+        function SobelFilter(){
+            img_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            let h = canvas2.height;
+            let w = canvas2.width;
+
+            let img2_data = ctx.createImageData(w, h);
+
+            let row_size = 1;
+            let col_size = 1;
+
+            let vertical_mask = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];
+            let horizontal_mask = [[-1, -2 , -1], [0, 0, 0], [1, 2, 1]];
+            for (let i = 0; i < h; i++) {
+                for (let j = 0; j < w; j++) {
+                    //Скользящее окно
+                    let x_sum = 0;
+                    let y_sum = 0;
+                    
+                    for (var k = -col_size; k <= col_size; k++) {
+                        for (var l = -row_size; l <= row_size; l++) {
+                            let R_buff = img_data.data[((i + l) * w + j + k) * 4]
+                            let G_buff = img_data.data[((i + l) * w + j + k) * 4 + 1]
+                            let B_buff = img_data.data[((i + l) * w + j + k) * 4 + 2]
+                            let S_buff = img_data.data[((i + l) * w + j + k) * 4 + 3]
+
+                            //Умножаем на коэффициенты Собеля и суммируем
+                            x_sum+=R_buff * horizontal_mask[k+1][l+1];
+                            x_sum+=G_buff * horizontal_mask[k+1][l+1];
+                            x_sum+=B_buff * horizontal_mask[k+1][l+1];
+                            x_sum+=S_buff * horizontal_mask[k+1][l+1];
+
+                            y_sum+=R_buff * vertical_mask[k+1][l+1];
+                            y_sum+=G_buff * vertical_mask[k+1][l+1];
+                            y_sum+=B_buff * vertical_mask[k+1][l+1];
+                            y_sum+=S_buff * vertical_mask[k+1][l+1];
+                        }
+                    }
+
+                    //Устанавливаем результат фильтрования окна
+                    img2_data.data[((i + l) * w + j + k) * 4] = Math.round(Math.sqrt(x_sum*x_sum+y_sum*y_sum));
+                    img2_data.data[((i + l) * w + j + k) * 4 + 1] = Math.round(Math.sqrt(x_sum*x_sum+y_sum*y_sum));
+                    img2_data.data[((i + l) * w + j + k) * 4 + 2] = Math.round(Math.sqrt(x_sum*x_sum+y_sum*y_sum));
+                    img2_data.data[((i + l) * w + j + k) * 4 + 3] = Math.round(Math.sqrt(x_sum*x_sum+y_sum*y_sum));
+                }
+            }
+            ctx2.putImageData(img2_data, 0, 0, 0, 0, canvas2.width, canvas2.height);
+        }
+
+        function GaussFilter(){
+            img_data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            let h = canvas4.height;
+            let w = canvas4.width;
+
+            let img4_data = ctx.createImageData(w, h);
+
+            let row_size = 1;
+            let col_size = 1;
+
+            for (let i = 0; i < h; i++) {
+                for (let j = 0; j < w; j++) {
+                    //Скользящее окно
+                    let R_sum = 0;
+                    let G_sum = 0;
+                    let B_sum = 0;
+                    let S_sum = 0;
+                    for (var k = -col_size; k <= col_size; k++) {
+                        for (var l = -row_size; l <= row_size; l++) {
+                            let R_buff = img_data.data[((i + l) * w + j + k) * 4]
+                            let G_buff = img_data.data[((i + l) * w + j + k) * 4 + 1]
+                            let B_buff = img_data.data[((i + l) * w + j + k) * 4 + 2]
+                            let S_buff = img_data.data[((i + l) * w + j + k) * 4 + 3]
+
+                            //Умножаем на коэффициенты Гаусса
+                            if(k == 0){
+                                R_buff = R_buff * 2;
+                                G_buff = G_buff * 2;
+                                B_buff = B_buff * 2;
+                                S_buff = S_buff * 2;
+                            }
+                            if(l == 0){
+                                R_buff = R_buff * 2;
+                                G_buff = G_buff * 2;
+                                B_buff = B_buff * 2;
+                                S_buff = S_buff * 2;
+                            }
+                            
+                            //Суммируем значения уже умноженные на коэффициенты Гаусса
+                            R_sum+=R_buff;
+                            G_sum+=G_buff;
+                            B_sum+=B_buff;
+                            S_sum+=S_buff;
+                            
+                        }
+                    }
+
+                    //Устанавливаем результат фильтрования окна
+                    img4_data.data[((i + l) * w + j + k) * 4] = Math.round(R_sum/16);
+                    img4_data.data[((i + l) * w + j + k) * 4 + 1] = Math.round(G_sum/16);
+                    img4_data.data[((i + l) * w + j + k) * 4 + 2] = Math.round(B_sum/16);
+                    img4_data.data[((i + l) * w + j + k) * 4 + 3] = Math.round(S_sum/16);
+                }
+            }
+            ctx4.putImageData(img4_data, 0, 0, 0, 0, canvas4.width, canvas4.height);
+        }
+
+        averageFilter();
+        SobelFilter();
+        GaussFilter();
+        
+    };
+</script>
+</body>
+</html>
